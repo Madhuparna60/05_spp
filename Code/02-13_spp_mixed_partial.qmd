@@ -45,7 +45,7 @@ glimpse(spp_rcbd_df)
 # c) Wrangling
 ```{r rcbd_dfw}
 spp_rcbd_dfw <- spp_rcbd_df %>%
-  mutate(block = factor(block),
+  mutate(rep = factor(rep),
          nrate_kgha = factor(nrate_kgha),
          krate_kgha = factor(krate_kgha) 
          ) %>%
@@ -103,13 +103,21 @@ In the case of a split-plot RCBD, we'll have 2 random variance components coming
 
 We have 2 random variance component from the split-plot because we have 2 different sizes of experimental unit that were randomized independently, and each size has its own error term.
 
+function lmer for mixed effect model
+lme function for fixed effect model
+
 
 ```{r model}
 # Changing to sum-to-zero contrast
 options(contrasts = c("contr.sum", "contr.poly"))
 
 # Model fitting
-spp_rcbd_mix_mod 
+spp_rcbd_mix_mod <- lmer(yield_kgha ~ krate_kgha*nrate_kgha + (1|rep/krate_kgha),
+                         data = spp_rcbd_dfw
+                         )
+
+##spp_rcbd_mix_mod <- lmer(yield_kgha ~ krate_kgha*nrate_kgha*prate_kgha + (1|rep/krate_kgha/nrate_kgha)) its a nesting
+
 
 # Summary
 summary(spp_rcbd_mix_mod)
@@ -148,14 +156,14 @@ Now, let's recap the linear model assumptions:
 
 - Independence (no pattern)  
 - Variance homogeneity (homoscedasticity)  
-- Normality  
+- Normality  (qq and desnity plot as well)
 - Outlier detection (< -3 or > 3)  
 
 One difference in mixed models is that the 3 first assumptions are also applied to the **random effects**, so we need to check it for them as well.  
 
 ### Block random effects are iid ~ N(0,var_a)  
 ```{r randeff_block}
-randeff_block
+randeff_block <- ranef(spp_rcbd_mix_mod)$rep
 
 randeff_block
 ```
@@ -178,7 +186,7 @@ Nothing to worry here, especially since we only have 4 points.
 
 ### Block:krate random effects are iid ~ N(0,var_b)  
 ```{r randeff_block}
-randeff_blockkrate 
+randeff_blockkrate <- ranef(spp_rcbd_mix_mod)$`krate_kgha:rep`
 
 randeff_blockkrate
 ```
