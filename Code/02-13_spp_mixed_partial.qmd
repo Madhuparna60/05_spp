@@ -17,7 +17,15 @@ library(car) # for Anova function
 library(lme4)
 library(broom) # for model residuals extraction
 library(emmeans) # for model mean extraction
+install.packages('multcomp')
 library(multcomp) # for pairwise comparison letter display
+install.packages("multcompView")
+library(multcompView)
+install.packages("dplyr")
+library(dplyr)
+install.packages("ggplot2")
+
+
 ```
 
 **IMPORTANT NOTE**:  
@@ -263,6 +271,10 @@ spp_rcbd_mix_means_all <- emmeans(spp_rcbd_mix_mod,
 
 spp_rcbd_mix_means_all
 ```
+-nrate_kgha:krate_kgha:SE =330, df =22.9
+-nrate_kgha: SE =209, df =8.19
+-krate_kgha: SE =232, df = 8.28
+
 
 In a split-plot, we have 2 sources of error because we have 2 different sizes of EU that were randomized separately.  
 
@@ -271,19 +283,19 @@ When we ask for the interaction means (like in chunk above), the emmean error is
 What happens with the emmean error if we ask for the emmean of the main effects of K and N rate separately? 
 
 ```{r k rate means}
-
+emmeans(spp_rcbd_mix_mod, ~krate_kgha )
 ```
 The SE of the whole-plot treatment factor (k rate) is **232**.
 
 What about for the split-plot treatment factor (n rate)?  
 
 ```{r n rate means }
-
+emmeans(spp_rcbd_mix_mod, ~nrate_kgha )
 ```
 It is 209.  
 
 Points to notice:  
-  - The **SE of the WP and SP treatment factors is different**! On the RCBD case we ran last exercise, they were the same because we only had one experimental size unit.  
+  - The **SE of the WP (krate) and SP (nrate) treatment factors is different**! On the RCBD case we ran last exercise, they were the same because we only had one experimental size unit.  
   
   - The **SE of the SP treatment factor will always be lower than that from the WP treatment factor**. Why?  
   
@@ -338,7 +350,7 @@ ggplot(mapping = aes(fill = trtname))+
         panel.grid.minor.y = element_blank(),
         legend.position = "none")
 
-ggsave("../output/spp_rcbd_mix_means.png",
+ggsave("../Output/spp_rcbd_mix_means.png",
        width = 8,
        height = 5)
 ```
